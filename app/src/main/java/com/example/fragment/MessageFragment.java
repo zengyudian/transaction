@@ -72,7 +72,7 @@ public class MessageFragment extends Fragment {
                 if (msg.what == 5) {
                     sellerID= (int) msg.obj;
 
-                    tel.setText(""+sellerID);
+                    tel.setText("电话号码："+sellerID);
 
                     bt_retail.setOnClickListener(new ImageView.OnClickListener(){
                         public void onClick(View v) {

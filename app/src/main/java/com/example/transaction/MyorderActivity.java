@@ -132,6 +132,7 @@ public class MyorderActivity extends FragmentActivity implements View.OnClickLis
     public void back_home(View btn){
         Intent back=new Intent(MyorderActivity.this,HomeActivity.class);
         back.putExtra("userID",userID);
+        back.putExtra("page",3);
         startActivity(back);
     }
 }

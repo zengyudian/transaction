@@ -6,9 +6,6 @@ import android.util.Base64;
 
 import java.io.ByteArrayOutputStream;
 
-/**
- * Created by cartoon on 2017/12/9.
- */
 
 public class StringAndBitmap {
     //图片与String之间的转换，便于将图片存储在数据库中

@@ -98,6 +98,7 @@ public class MyuncomfirmActivity extends AppCompatActivity {
     public void back_home(View btn){
         Intent back=new Intent(MyuncomfirmActivity.this,HomeActivity.class);
         back.putExtra("userID",userID);
+        back.putExtra("page",3);
         startActivity(back);
     }
 }

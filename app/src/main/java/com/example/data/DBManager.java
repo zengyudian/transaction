@@ -33,7 +33,7 @@ public class DBManager {
         db.close();
     }
 
-    public void add_ratail(RetailItem item) {
+    public void add_retail(RetailItem item) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("NAME", item.getName());

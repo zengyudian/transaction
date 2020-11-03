@@ -10,11 +10,7 @@ import android.view.Window;
 
 import com.example.transaction.R;
 
-/**
- * 对话框实现类
- * @author admin
- *
- */
+//对话框实现类
 public class MyDialog extends Dialog implements OnClickListener {
 
     public MyDialog(Context context) {
@@ -49,11 +45,9 @@ public class MyDialog extends Dialog implements OnClickListener {
                 break;
         }
     }
-    /**
-     * 按钮的监听器
-     * @author Orathee
-     * @date 2014年3月20日 下午4:28:39
-     */
+
+     // 按钮的监听器
+
     public interface OnButtonClickListener{
         void camera();
         void gallery();

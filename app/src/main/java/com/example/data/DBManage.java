@@ -20,15 +20,16 @@ public class DBManage {
 
     private static final String TAG = "DBManage";
 
-    public static Connection getConnection(final String dbName) {
+    public static Connection getConnection() {
         Connection conn = null;
 
         try {
             Class.forName("com.mysql.jdbc.Driver"); //加载驱动
-            String ip = "cd-cdb-hmbny6rw.sql.tencentcdb.com";
+            String ip = "cd-cdb-0yr90e06.sql.tencentcdb.com";
             conn = DriverManager.getConnection(
-                    "jdbc:mysql://" + ip + ":62331/" + dbName,
+                    "jdbc:mysql://" + ip + ":62275/transaction" ,
                     "root", "502de520");
+            //时区   +"?characterEncoding=utf-8&serverTimezone=UTC"
             Log.i("TAG", "连接数据库成功");
 
         } catch (SQLException ex) {
@@ -42,7 +43,7 @@ public class DBManage {
     public static HashMap<String, String> getUserInfoByID(String ID) {
         HashMap<String,String> map = new HashMap<>();
 
-        Connection conn = getConnection("test");
+        Connection conn = getConnection();
         Log.d(TAG, " 连接"+conn);
         try {
             Statement st = conn.createStatement();

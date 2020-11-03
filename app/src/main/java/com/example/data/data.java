@@ -195,7 +195,7 @@ public class data {
         retailItem.setLastprice(10f);
         retailItem.setSellerID(1);
         retailItem.setLastbuyerID(0);
-        manager.add_ratail(retailItem);
+        manager.add_retail(retailItem);
 
         //字帖
         retailItem=new RetailItem();
@@ -312,7 +312,7 @@ public class data {
         retailItem.setLastprice(10f);
         retailItem.setSellerID(1);
         retailItem.setLastbuyerID(0);
-        manager.add_ratail(retailItem);
+        manager.add_retail(retailItem);
 
         //索尼耳机
         retailItem=new RetailItem();
@@ -400,7 +400,7 @@ public class data {
         retailItem.setLastprice(1000f);
         retailItem.setSellerID(1);
         retailItem.setLastbuyerID(0);
-        manager.add_ratail(retailItem);
+        manager.add_retail(retailItem);
 
         //收音机
         retailItem=new RetailItem();
@@ -582,7 +582,7 @@ public class data {
         retailItem.setLastprice(200f);
         retailItem.setSellerID(1);
         retailItem.setLastbuyerID(0);
-        manager.add_ratail(retailItem);
+        manager.add_retail(retailItem);
     }
 
 

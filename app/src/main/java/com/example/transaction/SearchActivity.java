@@ -117,6 +117,7 @@ public class SearchActivity extends FragmentActivity {
     public void back_home(View btn){
         Intent back=new Intent(SearchActivity.this,HomeActivity.class);
         back.putExtra("userID",userID);
+        back.putExtra("page",1);
         startActivity(back);
     }
 }

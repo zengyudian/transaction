@@ -141,6 +141,7 @@ public class MydetailActivity extends FragmentActivity implements View.OnClickLi
     public void back_home(View btn){
         Intent back=new Intent(MydetailActivity.this,HomeActivity.class);
         back.putExtra("userID",userID);
+        back.putExtra("page",3);
         startActivity(back);
     }
 

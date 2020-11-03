@@ -319,7 +319,7 @@ public class PictureActivity extends Activity implements
         item.setLastprice(p1);
         item.setSellerID(userID);
 
-        manager.add_ratail(item);
+        manager.add_retail(item);
 
         Toast.makeText(this,"提交成功",Toast.LENGTH_SHORT).show();
         Intent back=new Intent(PictureActivity.this,MydetailActivity.class);

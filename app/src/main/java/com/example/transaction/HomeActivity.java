@@ -1,6 +1,8 @@
 package com.example.transaction;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -41,6 +43,7 @@ public class HomeActivity extends FragmentActivity {
     int userID;
     ListView listview;
     MyHomeAdapter myHomeAdapter;
+    int page;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +51,7 @@ public class HomeActivity extends FragmentActivity {
 
         Intent intent = getIntent();
         userID = intent.getIntExtra("userID", 0);
+        page=intent.getIntExtra("page",0);
 
         mFragments = new Fragment[3];
         fragmentManager = getSupportFragmentManager();
@@ -57,7 +61,17 @@ public class HomeActivity extends FragmentActivity {
 
         fragmentTransaction = fragmentManager.beginTransaction()
                 .hide(mFragments[0]).hide(mFragments[1]).hide(mFragments[2]);
-        fragmentTransaction.show(mFragments[0]).commit();
+
+        if(page==1){
+            fragmentTransaction.show(mFragments[0]).commit();
+        }
+        else if(page==2){
+            fragmentTransaction.show(mFragments[1]).commit();
+        }
+        else if(page==3){
+            fragmentTransaction.show(mFragments[2]).commit();
+        }
+
 
         rbtHome = (RadioButton) findViewById(R.id.radioHome);
         rbtMessage = (RadioButton) findViewById(R.id.radioMessage);
@@ -215,6 +229,13 @@ public class HomeActivity extends FragmentActivity {
 
 
     public void logout(View btn){
+
+        //重置本地账号信息为空
+        SharedPreferences sp = getSharedPreferences("userdata", Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putInt("localID",0);
+        editor.apply();
+
         Intent mycollect=new Intent(HomeActivity.this,MainActivity.class);
         Toast.makeText(this,"注销成功",Toast.LENGTH_SHORT).show();
         startActivity(mycollect);

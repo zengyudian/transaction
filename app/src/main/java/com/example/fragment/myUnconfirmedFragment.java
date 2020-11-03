@@ -38,12 +38,6 @@ public class myUnconfirmedFragment extends Fragment {
 
         userID=getActivity().getIntent().getIntExtra("userID",0);
 
-        /*List list = new ArrayList<HashMap<String, String>>();
-        for (int i = 1; i <= 10; i++) {
-            HashMap<String, String> map = new HashMap<String, String>();
-            map.put("ID", "" + i);//标题文字
-            list.add(map);
-        }*/
         manager=new DBManager(getActivity());
         List<RetailItem> list =manager.findBySellerId_retail(userID);
 

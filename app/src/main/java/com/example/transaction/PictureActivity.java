@@ -30,6 +30,7 @@ import android.widget.SimpleAdapter;
 import android.widget.SimpleAdapter.ViewBinder;
 import android.widget.Toast;
 
+import com.example.data.DBManage;
 import com.example.data.DBManager;
 import com.example.item.RetailItem;
 import com.example.method.MyDialog;
@@ -51,13 +52,14 @@ public class PictureActivity extends Activity implements
     private Bitmap bmp; // 导入临时图片
     private ArrayList<HashMap<String, Object>> imageItem;
     private SimpleAdapter simpleAdapter; // 适配器
-    DBManager manager;
+    DBManage manager;
 
     int userID;
     Bitmap photo;
     EditText name,price;
     String n,p;
     String picture;
+    RetailItem item;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -310,8 +312,8 @@ public class PictureActivity extends Activity implements
 
         picture=t.bitmapToString(photo);
 
-        manager=new DBManager(this);
-        RetailItem item=new RetailItem();
+        manager=new DBManage();
+        item=new RetailItem();
         //item.setID();
         item.setName(n);
         item.setPrice(p1);
@@ -319,11 +321,25 @@ public class PictureActivity extends Activity implements
         item.setLastprice(p1);
         item.setSellerID(userID);
 
-        manager.add_retail(item);
+
+        Thread thread1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                manager.add_retail(item);
+            }
+        });
+        thread1.start();
 
         Toast.makeText(this,"提交成功",Toast.LENGTH_SHORT).show();
         Intent back=new Intent(PictureActivity.this,MydetailActivity.class);
         back.putExtra("userID",userID);
+        startActivity(back);
+    }
+
+    public void back_home(View btn){
+        Intent back=new Intent(PictureActivity.this,MydetailActivity.class);
+        back.putExtra("userID",userID);
+        back.putExtra("page",1);
         startActivity(back);
     }
 

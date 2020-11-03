@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -14,11 +16,13 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.data.DBManage;
 import com.example.data.DBManager;
 import com.example.item.RetailItem;
 import com.example.method.StringAndBitmap;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class DetailsActivity extends AppCompatActivity {
 
@@ -28,14 +32,16 @@ public class DetailsActivity extends AppCompatActivity {
     TextView tv_name,tv_price,tv_date;
     ImageView imageView,imageView2;
     Float bid;
-    DBManager manager;
+    DBManage manager;
+    RetailItem retailItem;
+    Handler handler;
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
 
-        manager=new DBManager(this);
+        manager=new DBManage();
         tv_name=findViewById(R.id.detail_name1);
         tv_price=findViewById(R.id.detail_price1);
         tv_date=findViewById(R.id.detail_buyerID);
@@ -82,14 +88,42 @@ public class DetailsActivity extends AppCompatActivity {
             bid=bundle.getFloat("bid_price",0.1f);
 
             //预防同一时间另一用户提交更高竞拍价格
-            RetailItem retailItem=manager.findById_retail(ID);
-            if (bid>=retailItem.getLastprice()){
-                //将数据库中最后价格和最后竞拍用户ID更新
-                retailItem.setLastbuyerID(userID);
-                retailItem.setLastprice(bid);
-                manager.update_retail(retailItem);
-                tv_price.setText("price:"+bid);
-            }
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    retailItem=manager.findById_retail(ID);
+                    Message msg = new Message();
+                    msg.what = 5;
+                    msg.obj =retailItem;
+                    handler.sendMessage(msg);
+                }
+            });
+            thread.start();
+
+            handler=new Handler(){
+                public void handleMessage(Message msg) {
+                    if (msg.what == 5) {
+
+                        retailItem = (RetailItem) msg.obj;
+                        if (bid>=retailItem.getLastprice()){
+                            //将数据库中最后价格和最后竞拍用户ID更新
+                            retailItem.setLastbuyerID(userID);
+                            retailItem.setLastprice(bid);
+
+                            Thread thread1 = new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    manager.update_retail(retailItem);
+                                }
+                            });
+                            thread1.start();
+                            tv_price.setText("price:"+bid);
+                        }
+
+                    }
+                }
+            };
+
         }
 
         super.onActivityResult(requestCode,resultCode,data);
@@ -110,6 +144,15 @@ public class DetailsActivity extends AppCompatActivity {
 
     public void message(View btn){
 
+        Intent message=new Intent(DetailsActivity.this,HomeActivity.class);
+        message.putExtra("userID",userID);
+        message.putExtra("page",2);
+        message.putExtra("ID",ID);
+        message.putExtra("name",name);
+        message.putExtra("Lastprice",price);
+        message.putExtra("picture",picture);
+        startActivity(message);
+        Toast.makeText(this,"联系客服",Toast.LENGTH_SHORT).show();
     }
 
     public void collect(View btn){

@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -22,7 +24,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.adapter.MyHomeAdapter;
-import com.example.data.DBManager;
+import com.example.data.DBManage;
 import com.example.item.RetailItem;
 
 import java.util.ArrayList;
@@ -36,7 +38,7 @@ public class HomeActivity extends FragmentActivity {
     private FragmentManager fragmentManager;
     private FragmentTransaction fragmentTransaction;
     private RadioButton rbtHome, rbtMessage, rbtMypage;
-    DBManager manager;
+    DBManage manager;
     SearchView mSearchView;
 
 
@@ -44,6 +46,8 @@ public class HomeActivity extends FragmentActivity {
     ListView listview;
     MyHomeAdapter myHomeAdapter;
     int page;
+    List<RetailItem> list,list1;
+    Handler handler;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,7 +92,7 @@ public class HomeActivity extends FragmentActivity {
                         fragmentTransaction.show(mFragments[0]).commit();
                         break;
                     case R.id.radioMessage:
-                        fragmentTransaction.show(mFragments[1]).commit();
+                        //fragmentTransaction.show(mFragments[1]).commit();
                         break;
                     case R.id.radioMypage:
                         fragmentTransaction.show(mFragments[2]).commit();
@@ -106,15 +110,40 @@ public class HomeActivity extends FragmentActivity {
         final TextView tv = findViewById(R.id.nodata);
         //tv.setText("123"+listview);
 
-        manager = new DBManager(this);
-        List<RetailItem> list = manager.listAll_retail();
-        Log.i("radioGroup", "所有商品：" + list);
+        manager = new DBManage();
+        list=new ArrayList<RetailItem>();
+        list1=new ArrayList<RetailItem>();
 
-        myHomeAdapter = new MyHomeAdapter(HomeActivity.this,
-                R.layout.frame_home, (ArrayList<RetailItem>) list);
-        listview.setAdapter(myHomeAdapter);
-        listview.setEmptyView(tv);
-        listview.setOnItemClickListener(new ClickEvent());
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                list = manager.listAll_retail();
+
+                Message msg = new Message();
+                msg.what = 5;
+                msg.obj = list;
+                handler.sendMessage(msg);
+            }
+        });
+        thread.start();
+
+        handler=new Handler(){
+            public void handleMessage(Message msg) {
+                if (msg.what == 5) {
+
+                    list1 = (List<RetailItem>) msg.obj;
+                    Log.i("radioGroup", "所有商品：" + list1);
+
+                    myHomeAdapter = new MyHomeAdapter(HomeActivity.this,
+                            R.layout.frame_home, (ArrayList<RetailItem>) list1);
+                    listview.setAdapter(myHomeAdapter);
+                    listview.setEmptyView(tv);
+                    listview.setOnItemClickListener(new ClickEvent());
+                }
+            }
+        };
+
 
         //View view =getLayoutInflater().inflate(R.layout.frame_mypage, null);
         TextView username = findViewById(R.id.username);
@@ -153,6 +182,8 @@ public class HomeActivity extends FragmentActivity {
                 return true;
             }
         });
+
+
     }
 
     public class ClickEvent implements AdapterView.OnItemClickListener {
@@ -199,33 +230,33 @@ public class HomeActivity extends FragmentActivity {
 
 
 
-    public void search(){
-        //数据库实现查找功能
-        SearchView searchView;
-        searchView=findViewById(R.id.searchView);
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-
-            //输入完成后，提交时触发的方法，一般情况是点击输入法中的搜索按钮才会触发，表示现在正式提交了
-            public boolean onQueryTextSubmit(String query) {
-                if (TextUtils.isEmpty(query)) {
-                    Toast.makeText(HomeActivity.this, "请输入查找内容111！", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(HomeActivity.this, query, Toast.LENGTH_SHORT).show();
-                }
-                return true;
-            }
-            //在输入时触发的方法，当字符真正显示到searchView中才触发，像是拼音，在输入法组词的时候不会触发
-            public boolean onQueryTextChange(String newText) {
-                if (TextUtils.isEmpty(newText)) {
-                    Toast.makeText(HomeActivity.this, "请输入查找内容222！", Toast.LENGTH_SHORT).show();
-
-                } else {
-                    Toast.makeText(HomeActivity.this, newText, Toast.LENGTH_SHORT).show();
-                }
-                return true;
-            }
-        });
-    }
+//    public void search(){
+//        //数据库实现查找功能
+//        SearchView searchView;
+//        searchView=findViewById(R.id.searchView);
+//        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+//
+//            //输入完成后，提交时触发的方法，一般情况是点击输入法中的搜索按钮才会触发，表示现在正式提交了
+//            public boolean onQueryTextSubmit(String query) {
+//                if (TextUtils.isEmpty(query)) {
+//                    Toast.makeText(HomeActivity.this, "请输入查找内容111！", Toast.LENGTH_SHORT).show();
+//                } else {
+//                    Toast.makeText(HomeActivity.this, query, Toast.LENGTH_SHORT).show();
+//                }
+//                return true;
+//            }
+//            //在输入时触发的方法，当字符真正显示到searchView中才触发，像是拼音，在输入法组词的时候不会触发
+//            public boolean onQueryTextChange(String newText) {
+//                if (TextUtils.isEmpty(newText)) {
+//                    Toast.makeText(HomeActivity.this, "请输入查找内容222！", Toast.LENGTH_SHORT).show();
+//
+//                } else {
+//                    Toast.makeText(HomeActivity.this, newText, Toast.LENGTH_SHORT).show();
+//                }
+//                return true;
+//            }
+//        });
+//    }
 
 
     public void logout(View btn){

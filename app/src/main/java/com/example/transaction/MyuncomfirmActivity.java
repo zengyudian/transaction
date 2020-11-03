@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -12,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.data.DBManage;
 import com.example.data.DBManager;
 import com.example.item.RetailItem;
 import com.example.method.StringAndBitmap;
@@ -23,15 +26,17 @@ public class MyuncomfirmActivity extends AppCompatActivity {
     String name,picture;
     Float price;
     TextView tv_name,tv_price,tv_buyerID;
-    ImageView imageView,imageView2;
-    DBManager manager;
+    ImageView imageView;
+    DBManage manager;
     RetailItem item1;
+    int buyerID,buyerid;
+    Handler handler;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mydetails);
 
-        manager=new DBManager(this);
+        manager=new DBManage();
         tv_name=findViewById(R.id.detail_name1);
         tv_price=findViewById(R.id.detail_price1);
         tv_buyerID=findViewById(R.id.detail_buyerID);
@@ -42,14 +47,38 @@ public class MyuncomfirmActivity extends AppCompatActivity {
         userID=intent.getIntExtra("userID",0);
         name=intent.getStringExtra("name");
         picture=intent.getStringExtra("picture");
-        price=intent.getFloatExtra("Lastprice",0.1f);
-        int buyerID;
-        item1=manager.findById_retail(ID);
-        buyerID=item1.getLastbuyerID();
+        price=intent.getFloatExtra("Lastprice",0.0f);
+
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                item1=manager.findById_retail(ID);
+
+                Message msg = new Message();
+                msg.what = 5;
+                msg.obj = item1;
+                handler.sendMessage(msg);
+            }
+        });
+        thread.start();
+
+        handler=new Handler(){
+            public void handleMessage(Message msg) {
+                if (msg.what == 5) {
+
+                    item1=(RetailItem)msg.obj;
+                    buyerID=item1.getLastbuyerID();
+
+                    tv_buyerID.setText("买家账号："+buyerID);
+                }
+            }
+        };
+
 
         tv_name.setText(""+name);
         tv_price.setText("¥"+price);
-        tv_buyerID.setText("买家账号："+buyerID);
 
         //设置图片
         StringAndBitmap t=new StringAndBitmap();
@@ -75,12 +104,21 @@ public class MyuncomfirmActivity extends AppCompatActivity {
 
     public void sure(View btn){
 
-        manager.add_comfirm(item1);
-        manager.delete_retail(ID);
+        Thread thread1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                item1=manager.findById_retail(ID);
+                manager.add_comfirm(item1);
+                manager.delete_retail(ID);
+            }
+        });
+        thread1.start();
+
         Toast.makeText(this,"订单已完成",Toast.LENGTH_SHORT).show();
         //确认订单
         Intent back=new Intent(MyuncomfirmActivity.this,HomeActivity.class);
         back.putExtra("userID",userID);
+        back.putExtra("page",3);
         startActivity(back);
 
     }
@@ -88,7 +126,14 @@ public class MyuncomfirmActivity extends AppCompatActivity {
     public void delete(View btn){
 
         //从数据库中删除
-        manager.delete_retail(ID);
+        Thread thread2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                manager.delete_retail(ID);
+            }
+        });
+        thread2.start();
+
         Toast.makeText(this,"删除成功",Toast.LENGTH_SHORT).show();
         Intent back=new Intent(MyuncomfirmActivity.this,HomeActivity.class);
         back.putExtra("userID",userID);

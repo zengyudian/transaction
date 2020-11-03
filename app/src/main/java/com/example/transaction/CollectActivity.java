@@ -2,6 +2,8 @@ package com.example.transaction;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -11,6 +13,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.adapter.MyHomeAdapter;
+import com.example.data.DBManage;
 import com.example.data.DBManager;
 import com.example.item.RetailItem;
 
@@ -23,15 +26,18 @@ public class CollectActivity extends AppCompatActivity {
 
     ListView listview;
     MyHomeAdapter myHomeAdapter;
-    DBManager manager;
+    DBManage manager;
     int userID;
+    List<RetailItem> list,list1;
+    Handler handler;
+    TextView tv;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_collect);
 
 
         listview=findViewById(R.id.collectlist);
-        TextView tv = findViewById(R.id.tv_collect);
+        tv = findViewById(R.id.tv_collect);
 
         userID=getIntent().getIntExtra("userID",0);
         //tv.setText("123"+listview);
@@ -44,14 +50,40 @@ public class CollectActivity extends AppCompatActivity {
             map.put("ID",""+i);//标题文字
             list.add(map);
         }*/
-        manager=new DBManager(this);
-        List list =manager.listAll_retail();
+        manager=new DBManage();
 
-        myHomeAdapter = new MyHomeAdapter(CollectActivity.this,
-                R.layout.activity_collect, (ArrayList<RetailItem>) list);
-        listview.setAdapter(myHomeAdapter);
-        listview.setEmptyView(tv);
-        listview.setOnItemClickListener(new ClickEvent());
+        list=new ArrayList<RetailItem>();
+        list1=new ArrayList<RetailItem>();
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                list = manager.listAll_retail();
+
+                Message msg = new Message();
+                msg.what = 5;
+                msg.obj = list;
+                handler.sendMessage(msg);
+            }
+        });
+        thread.start();
+
+        handler=new Handler(){
+            public void handleMessage(Message msg) {
+                if (msg.what == 5) {
+
+                    list1 = (List<RetailItem>) msg.obj;
+                    myHomeAdapter = new MyHomeAdapter(CollectActivity.this,
+                            R.layout.activity_collect, (ArrayList<RetailItem>) list1);
+                    listview.setAdapter(myHomeAdapter);
+                    listview.setEmptyView(tv);
+                    listview.setOnItemClickListener(new ClickEvent());
+                }
+            }
+        };
+
+
 }
 
 public class ClickEvent implements AdapterView.OnItemClickListener {

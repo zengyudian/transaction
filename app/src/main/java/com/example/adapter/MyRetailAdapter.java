@@ -13,17 +13,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.data.DBManage;
 import com.example.data.DBManager;
 import com.example.item.RetailItem;
 import com.example.method.StringAndBitmap;
 import com.example.transaction.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MyRetailAdapter extends ArrayAdapter {
     private static final String TAG = "MyAdapter";
     Button button;
-    DBManager manager;
+    DBManage manager;
 
     public MyRetailAdapter(Context context,
                            int resource,
@@ -57,12 +59,20 @@ public class MyRetailAdapter extends ArrayAdapter {
 
                 Log.i(TAG, "点击按钮"+n);
                 //数据存入完成订单数据库，并从未完成数据库删除
-                manager=new DBManager(getContext());
-                manager.add_comfirm(item);
-                manager.delete_retail(ID);
+                manager=new DBManage();
+
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        manager.add_comfirm(item);
+                        manager.delete_retail(ID);
+
+                    }
+                });
+                thread.start();
+
                 Toast.makeText(getContext(),"订单已完成",Toast.LENGTH_SHORT).show();
-
-
             }
         });
 

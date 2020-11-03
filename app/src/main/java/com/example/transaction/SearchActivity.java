@@ -2,6 +2,8 @@ package com.example.transaction;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -14,8 +16,10 @@ import android.widget.Toast;
 import androidx.fragment.app.FragmentActivity;
 
 import com.example.adapter.MyHomeAdapter;
+import com.example.data.DBManage;
 import com.example.data.DBManager;
 import com.example.item.RetailItem;
+import com.example.item.UserItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,12 +30,14 @@ public class SearchActivity extends FragmentActivity {
 
     SearchView mSearchView;
 
-    DBManager manager;
+    DBManage manager;
 
     String name;
     int userID;
     ListView listview;
     MyHomeAdapter myHomeAdapter;
+    List<RetailItem> list;
+    Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,19 +48,41 @@ public class SearchActivity extends FragmentActivity {
         Intent intent = getIntent();
         userID = intent.getIntExtra("userID", 0);
         name=intent.getStringExtra("text");
+        Log.i(TAG, "search:"+name);
 
         listview = findViewById(R.id.homelist);
         final TextView tv = findViewById(R.id.nodata);
 
-        manager = new DBManager(this);
-        List<RetailItem> list = manager.findByName_retail(name);
 
-        myHomeAdapter = new MyHomeAdapter(SearchActivity.this,
-                R.layout.frame_home, (ArrayList<RetailItem>) list);
-        listview.setAdapter(myHomeAdapter);
-        listview.setEmptyView(tv);
-        listview.setOnItemClickListener(new SearchActivity.ClickEvent());
+        manager = new DBManage();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                list=new ArrayList<RetailItem>();
+                list = manager.findByName_retail(name);
+                Log.i(TAG, "search"+list);
 
+                Message msg = new Message();
+                msg.what = 5;
+                msg.obj = list;
+                handler.sendMessage(msg);
+            }
+        });
+        thread.start();
+
+        handler=new Handler(){
+            public void handleMessage(Message msg) {
+                if (msg.what == 5) {
+                    list= (List<RetailItem>) msg.obj;
+
+                    myHomeAdapter = new MyHomeAdapter(SearchActivity.this,
+                            R.layout.frame_home, (ArrayList<RetailItem>) list);
+                    listview.setAdapter(myHomeAdapter);
+                    listview.setEmptyView(tv);
+                    listview.setOnItemClickListener(new SearchActivity.ClickEvent());
+                }
+            }
+        };
 
         mSearchView = (SearchView) findViewById(R.id.searchView);
         mSearchView.setIconifiedByDefault(true);

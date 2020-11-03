@@ -1,6 +1,8 @@
 package com.example.fragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +13,7 @@ import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
+import com.example.data.DBManage;
 import com.example.data.DBManager;
 import com.example.transaction.DetailsActivity;
 import com.example.adapter.MyHomeAdapter;
@@ -25,15 +28,18 @@ import static android.content.ContentValues.TAG;
 public class UnconfirmedFragment extends Fragment {
 
     ListView listview2;
-    DBManager manager;
+    DBManage manager;
     int userID;
+    Handler handler;
+    List<RetailItem> list;
+    TextView tv1;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view = getLayoutInflater().inflate(R.layout.myorder_sold, null);
         listview2 = view.findViewById(R.id.orderlist);
-        TextView tv1 = view.findViewById(R.id.nodata11);
+        tv1 = view.findViewById(R.id.nodata11);
 
         userID=getActivity().getIntent().getIntExtra("userID",0);
 
@@ -43,19 +49,37 @@ public class UnconfirmedFragment extends Fragment {
             map.put("ID", "" + i);//标题文字
             list.add(map);
         }*/
-        manager=new DBManager(getActivity());
-        List list =manager.findByBuyerId_retail(userID);
+        manager=new DBManage();
+        list=new ArrayList<RetailItem>();
 
-        Log.i("adapter", "adapter" + list);
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
 
-        MyHomeAdapter myHomeAdapter1;
-        myHomeAdapter1 = new MyHomeAdapter(getActivity(),
-                R.layout.myorder_sold, (ArrayList<RetailItem>) list);
-        listview2.setAdapter(myHomeAdapter1);
-        listview2.setEmptyView(tv1);
-        listview2.setOnItemClickListener(new ClickEvent());
+                list =manager.findByBuyerId_retail(userID);
 
-        //return inflater.inflate(R.layout.myorder_sold, container, false);
+                Message msg = new Message();
+                msg.what = 5;
+                msg.obj = list;
+                handler.sendMessage(msg);
+            }
+        });
+        thread.start();
+
+        handler=new Handler(){
+            public void handleMessage(Message msg) {
+                if (msg.what == 5) {
+
+                    list = (List<RetailItem>) msg.obj;
+                    MyHomeAdapter myHomeAdapter1;
+                    myHomeAdapter1 = new MyHomeAdapter(getActivity(),
+                            R.layout.myorder_sold, (ArrayList<RetailItem>) list);
+                    listview2.setAdapter(myHomeAdapter1);
+                    listview2.setEmptyView(tv1);
+                    listview2.setOnItemClickListener(new ClickEvent());
+                }
+            }
+        };
 
         return view;
     }

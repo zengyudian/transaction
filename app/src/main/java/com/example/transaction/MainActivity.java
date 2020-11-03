@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
@@ -15,23 +16,28 @@ import android.widget.Toast;
 
 import com.example.data.DBManage;
 import com.example.data.DBManager;
+import com.example.item.RetailItem;
 import com.example.item.UserItem;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import static android.content.ContentValues.TAG;
 
 public class MainActivity extends AppCompatActivity {
 
-    private DBManager manager;
-    DBManage m;
+    private DBManage manager;
     EditText pn,pw;
     int name;
+    UserItem item,item1;
+    Handler handler;
+    String password;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        manager=new DBManager(this);
+        manager=new DBManage();
 
         pn=findViewById(R.id.PersonName);
         pw=findViewById(R.id.Password);
@@ -41,9 +47,8 @@ public class MainActivity extends AppCompatActivity {
         PreferenceManager.getDefaultSharedPreferences(this);
         Log.i(TAG,"读取数据");
         name=sp.getInt("localID",0);
-        UserItem item1=manager.findById(name);
 
-        if(item1!=null){
+        if(name!=0){
             Intent login=new Intent(MainActivity.this,HomeActivity.class);
             login.putExtra("userID",name);
             login.putExtra("page",1);
@@ -54,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void login(View btn){
 
-        String str_name,password;
+        String str_name;
 
         str_name=pn.getText().toString();
         password=pw.getText().toString();
@@ -63,38 +68,54 @@ public class MainActivity extends AppCompatActivity {
 
         try{
 
-            UserItem item=manager.findById(name);
+            final Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
 
-            if(item==null){
-                Toast.makeText(this,"不存在账号",Toast.LENGTH_SHORT).show();
-            }
-            else if(password.equals(item.getCurPassword())){
-                Toast.makeText(this,"登录成功",Toast.LENGTH_SHORT).show();
+                    item=manager.findById(name);
 
+                    Log.i(TAG,"读取数据"+item);
+                    Message msg = new Message();
+                    msg.what = 5;
+                    msg.obj = item;
+                    handler.sendMessage(msg);
+                }
+            });
+            thread.start();
 
-                final Thread thread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        m.getConnection();
+            handler=new Handler(){
+                public void handleMessage(Message msg) {
+                    if (msg.what == 5) {
+                        item1= (UserItem) msg.obj;
+                        Log.i(TAG,"读取数据"+item1);
+
+                        if(item1!=null){
+                            if(password.equals(item1.getCurPassword())){
+                                Toast.makeText(MainActivity.this,"登录成功",Toast.LENGTH_SHORT).show();
+
+                                //保存本地用户账号数据
+                                SharedPreferences sp = getSharedPreferences("userdata", Activity.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sp.edit();
+                                editor.putInt("localID",name);
+                                editor.apply();
+
+                                Intent login=new Intent(MainActivity.this,HomeActivity.class);
+                                login.putExtra("userID",name);
+                                login.putExtra("page",1);
+                                startActivity(login);
+                            }
+                            else{
+                                Toast.makeText(MainActivity.this,"密码错误",Toast.LENGTH_SHORT).show();
+                            }
+                        }else{
+                            Toast.makeText(MainActivity.this,"不存在账号",Toast.LENGTH_SHORT).show();
+                        }
+
                     }
+                }
+            };
 
-                });
-                thread.start();
 
-                //保存本地用户账号数据
-                SharedPreferences sp = getSharedPreferences("userdata", Activity.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sp.edit();
-                editor.putInt("localID",name);
-                editor.apply();
-
-                Intent login=new Intent(MainActivity.this,HomeActivity.class);
-                login.putExtra("userID",name);
-                login.putExtra("page",1);
-                startActivity(login);
-            }
-            else{
-                Toast.makeText(this,"密码错误",Toast.LENGTH_SHORT).show();
-            }
 
         } catch (NumberFormatException e) {
             Toast.makeText(this,"不规范输入值",Toast.LENGTH_SHORT).show();

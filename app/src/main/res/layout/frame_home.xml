@@ -22,7 +22,6 @@ android:layout_height="match_parent">
         android:iconifiedByDefault="false"
         android:imeOptions="actionSearch"
         android:inputType="textCapWords"
-        android:onClick="search"
         android:queryHint="搜索内容"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

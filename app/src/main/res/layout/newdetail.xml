@@ -6,6 +6,33 @@
     android:background="@android:color/background_light"
     android:orientation="vertical">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#4D9AE6">
+
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:onClick="back_home"
+            android:src="@drawable/back" />
+
+        <View
+            android:id="@+id/view10"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:background="#4D9AE6" />
+
+    </LinearLayout>
+
+
+
+
+
     <EditText
         android:id="@+id/new_name"
         android:layout_width="match_parent"

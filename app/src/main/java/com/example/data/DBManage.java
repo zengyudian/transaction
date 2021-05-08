@@ -12,7 +12,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 
@@ -26,9 +25,9 @@ public class DBManage {
 
         try {
             Class.forName("com.mysql.jdbc.Driver"); //加载驱动
-            String ip = "cd-cdb-0yr90e06.sql.tencentcdb.com";
+            String ip = "cdb-dh3ktjre.cd.tencentcdb.com";
             conn = DriverManager.getConnection(
-                    "jdbc:mysql://" + ip + ":62275/transaction" ,
+                    "jdbc:mysql://" + ip + ":10024/transaction" ,
                     "root", "502de520");
             //时区   +"?characterEncoding=utf-8&serverTimezone=UTC"
             Log.i("TAG", "连接数据库成功");
@@ -69,7 +68,7 @@ public class DBManage {
     public void add_retail(RetailItem item) {
         Connection conn = getConnection();
         Log.d(TAG, " 连接"+conn);
-        int ID=item.getID();
+        //int ID=item.getID();
         String name=item.getName();
         Float price=item.getPrice();
         String picture=item.getPicture();
@@ -78,8 +77,10 @@ public class DBManage {
         int lastbuyerID=item.getLastbuyerID();
         try {
             //Statement st = conn.createStatement();
-            String sql = "insert into retail values('"+ID+"','"+name+"','"+price+"','"+picture+"'" +
+            String sql = "insert into retail(NAME,PRICE,PICTURE,LASTPRICE,SELLERID,LASTBUYERID) " +
+                    "values('"+name+"','"+price+"','"+picture+"'" +
                     ",'"+lastprice+"','"+sellerID+"','"+lastbuyerID+"')";
+
 
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.executeUpdate();

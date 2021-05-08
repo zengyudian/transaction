@@ -69,10 +69,11 @@ public class RegistActivity extends AppCompatActivity {
                         userItem = (UserItem) msg.obj;
                         Log.i(TAG, "sentOK" + userItem);
 
-                        if(userItem!=null){
-
+                        if(userItem.getCurPassword()!=""){
+                            Log.i(TAG,"item:"+userItem);
                             Toast.makeText(RegistActivity.this,"账号已存在",Toast.LENGTH_SHORT).show();
                         }
+
                         else if(password1.equals(password2)){
                             item1=new UserItem();
                             item1.setCurName(name);

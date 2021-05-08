@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DBHelper extends SQLiteOpenHelper {
 
     private static final int VERSION = 1;
-    private static final String DB_NAME = "transaction.db";
+    private static final String DB_NAME = "transaction";
     public static final String TB_NAME1 = "user";
     public static final String TB_NAME2 = "retail";
     public static final String TB_NAME3 = "comfirmed";

@@ -23,10 +23,12 @@ import com.example.method.StringAndBitmap;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class DetailsActivity extends AppCompatActivity {
 
-    int ID,userID;
+    int ID,userID,delay;
     String name,picture;
     Float price;
     TextView tv_name,tv_price,tv_date;
@@ -34,6 +36,7 @@ public class DetailsActivity extends AppCompatActivity {
     Float bid;
     DBManage manager;
     RetailItem retailItem;
+    RetailItem item1;
     Handler handler;
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -116,6 +119,30 @@ public class DetailsActivity extends AppCompatActivity {
                                     manager.update_retail(retailItem);
                                 }
                             });
+
+                            TimerTask  task= new TimerTask() {
+                                @Override
+                                public void run() {
+
+                                    Thread thread2 = new Thread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            item1=manager.findById_retail(ID);
+                                            manager.add_comfirm(item1);
+                                            manager.delete_retail(ID);
+                                        }
+                                    });
+                                    thread2.start();
+                                    Log.i("MainActivity","最终竞拍价格"+bid);
+                                    Log.i("MainActivity","最终竞拍用户"+userID);
+
+                                }
+                            };
+
+                            delay=30000;
+                            Timer timer = new Timer();
+                            timer.schedule(task, delay);
+
                             thread1.start();
                             tv_price.setText("price:"+bid);
                         }
